@@ -1,8 +1,12 @@
 (function(){
   /* language */
   var root=document.documentElement;
+  var kitReady=false,curTheme='ink';
   function setLang(l){
     root.setAttribute('data-lang',l);root.lang=l;
+    document.querySelector('.nav nav').setAttribute('aria-label',l==='en'?'Sections':'Secciones');
+    document.querySelectorAll('[data-en]').forEach(function(el){el.setAttribute('aria-label',el.dataset[l]||el.dataset.es)});
+    if(kitReady)applyKit(curTheme);
     document.querySelectorAll('.lang button').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.set===l))});
     try{localStorage.setItem('mad-lang',l)}catch(e){}
   }
@@ -13,7 +17,7 @@
   /* copy email */
   var btn=document.getElementById('copy-mail'),mail=document.getElementById('mail');
   btn.addEventListener('click',function(){
-    var done=function(){var es=btn.querySelector('[lang=es]'),en=btn.querySelector('[lang=en]');es.textContent='Copiado';en.textContent='Copied';setTimeout(function(){es.textContent='Copiar';en.textContent='Copy'},1600)};
+    var done=function(){var es=btn.querySelector('[lang=es]'),en=btn.querySelector('[lang=en]');es.textContent='Copiado';en.textContent='Copied';document.getElementById('copy-status').textContent=root.lang==='en'?'Email copied':'Email copiado';setTimeout(function(){es.textContent='Copiar';en.textContent='Copy'},1600)};
     var select=function(){var r=document.createRange();r.selectNodeContents(mail);var s=getSelection();s.removeAllRanges();s.addRange(r)};
     try{navigator.clipboard.writeText(mail.textContent).then(done,select)}catch(e){select()}
   });
@@ -83,7 +87,7 @@
   var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches,size={},worker=null;
   var cvs=Array.prototype.slice.call(document.querySelectorAll('canvas[data-fig]'));
   if(window.Worker&&HTMLCanvasElement.prototype.transferControlToOffscreen){
-    worker=new Worker('js/dither.worker.js');
+    worker=new Worker('js/dither.worker.js?v=39490b00');
     var add=cvs.map(function(c,i){c.dataset.fid=i;if(c.id)size[c.id]=[c.width,c.height];if(c.dataset.fig==='mono')size.mono=[c.width,c.height];
       return {id:i,cv:c.transferControlToOffscreen(),ds:Object.assign({},c.dataset)}});
     worker.postMessage({add:add,reduce:reduce},add.map(function(a){return a.cv}));
@@ -105,16 +109,17 @@
     spirited:['湯','mincho','yu','El viaje de Chihiro'],mononoke:['森','mincho','mori','Mononoke'],yourname:['結','mincho','musubi','Your Name'],aot:['壁','mincho','kabe','Attack on Titan'],
     fma:['錬','mincho','renkin','Fullmetal Alchemist'],kimetsu:['炎','mincho','honō','Demon Slayer'],deathnote:['名','mincho','na','Death Note'],steins:['時','tech','toki','Steins;Gate'],
     onepiece:['海','mincho','umi','One Piece'],naruto:['忍','mincho','shinobi','Naruto'],dbz:['気','tech','ki','Dragon Ball Z'],jjk:['呪','tech','noroi','Jujutsu Kaisen'],csm:['鋸','tech','nokogiri','Chainsaw Man'],hxh:['念','tech','nen','Hunter x Hunter'],berserk:['剣','mincho','ken','Berserk'],vinland:['航','mincho','kō','Vinland Saga'],frieren:['旅','mincho','tabi','Frieren'],mob:['超','tech','chō','Mob Psycho 100'],ttgl:['螺','tech','ra','Gurren Lagann'],codegeass:['王','mincho','ō','Code Geass']};
+  var NAME_EN={ink:'Ink',spirited:'Spirited Away',mononoke:'Princess Mononoke'};
   var sealEl=document.querySelector('.seal'),wmEl=document.querySelector('.watermark'),iconEl=document.querySelector('link[rel="icon"]');
   function applyKit(id){
-    var k=KIT[id]||KIT.ink,kanji=k[0]!=='M';
+    var k=KIT[id]||KIT.ink,kanji=k[0]!=='M',en=root.lang==='en',name=(en&&NAME_EN[id])||k[3];
     if(k[1]==='serif')delete root.dataset.font;else root.dataset.font=k[1];
     sealEl.textContent=k[0];sealEl.classList.toggle('k',kanji);
     wmEl.textContent=k[0];wmEl.classList.toggle('k',kanji);
     document.querySelectorAll('.idx .mk').forEach(function(m){m.textContent=kanji?k[0]:''});
-    document.getElementById('kit-cap').textContent=id==='ink'?'fig. 01 — Marco Aurelio · CC0':'fig. 01 — '+k[3]+' · '+k[0];
-    document.getElementById('wallfx').setAttribute('aria-label',id==='ink'?'Busto de Marco Aurelio tramado (foto CC0, Wikimedia Commons)':'Figura tramada: '+k[3]);
-    document.getElementById('kit-foot').textContent=k[3];
+    document.getElementById('kit-cap').textContent=id==='ink'?'fig. 01 — '+(en?'Marcus Aurelius':'Marco Aurelio')+' · CC0':'fig. 01 — '+name+' · '+k[0];
+    document.getElementById('wallfx').setAttribute('aria-label',id==='ink'?(en?'Dithered bust of Marcus Aurelius (CC0 photo, Wikimedia Commons)':'Busto de Marco Aurelio tramado (foto CC0, Wikimedia Commons)'):(en?'Dithered figure: ':'Figura tramada: ')+name);
+    document.getElementById('kit-foot').textContent=name;
     var cs=getComputedStyle(root),sv=cs.getPropertyValue('--seal').trim(),iv=cs.getPropertyValue('--ink').trim();
     iconEl.href='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="4" fill="'+sv+'"/><text x="16" y="'+(kanji?24:23)+'" font-family="'+(kanji?'Yu Mincho,serif':'Georgia,serif')+'" font-size="'+(kanji?21:20)+'" font-weight="600" text-anchor="middle" fill="'+iv+'">'+k[0]+'</text></svg>');
     glyph=k[0];buildMask();
@@ -124,19 +129,36 @@
     if(document.querySelector('.theme[data-motif="'+id+'"]'))root.dataset.motif=id;else delete root.dataset.motif;
     themeBtns.forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.theme===id))});
     try{localStorage.setItem('mad-theme',id)}catch(e){}
-    applyKit(id);readColors();worker.postMessage({colors:[bone,seal,alt],theme:id});
+    curTheme=id;applyKit(id);
+    cancelAnimationFrame(postFrame);postFrame=requestAnimationFrame(function(){readColors();worker.postMessage({colors:[bone,seal,alt],theme:curTheme})});
   }
-  themeBtns.forEach(function(b){b.addEventListener('click',function(){setTheme(b.dataset.theme)})});
+  var postFrame=0,more=document.querySelector('.more-themes');
+  themeBtns.forEach(function(b){b.addEventListener('click',function(){
+    var u=new URL(location);if(u.searchParams.has('theme')){u.searchParams.delete('theme');history.replaceState(null,'',u)} // a shared link sets the first look, not every later visit
+    var go=function(){setTheme(b.dataset.theme)};
+    if(!document.startViewTransition||b.getAttribute('aria-pressed')==='true')return go();
+    var r=b.getBoundingClientRect();root.style.setProperty('--vt-x',(r.left+r.width/2)+'px');root.style.setProperty('--vt-y',(r.top+r.height/2)+'px');
+    var vt=document.startViewTransition(go);vt.ready.catch(function(){}); // skipped transitions (hidden tab, rapid clicks) still apply the theme
+  })});
   var first=root.dataset.theme;if(!first||!document.querySelector('.theme[data-theme="'+first+'"]'))first='ink'; // ?theme= links and stored values may be stale
-  setTheme(first);
+  setTheme(first);kitReady=true;
+  if(more&&more.querySelector('.theme[data-theme="'+first+'"]'))more.open=true;
 
   /* reveal each section once, children staggered */
   var groups=document.querySelectorAll('[data-reveal]');
   groups.forEach(function(g){Array.prototype.forEach.call(g.children,function(c,i){c.style.setProperty('--i',i)})});
   if('IntersectionObserver' in window&&!reduce){
+    root.classList.add('reveal');
     var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -12% 0px'});
     groups.forEach(function(g){io.observe(g)});
   }else groups.forEach(function(g){g.classList.add('in')});
+
+  /* nav marks the section in view */
+  var navA=document.querySelectorAll('.nav nav a');
+  if('IntersectionObserver' in window){
+    var navIO=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)navA.forEach(function(a){a.toggleAttribute('aria-current',a.hash==='#'+e.target.id)})})},{rootMargin:'-45% 0px -50% 0px'});
+    document.querySelectorAll('main section[id]').forEach(function(s){navIO.observe(s)});
+  }
 
   /* SIGNAL: scroll position drives the sequence Apps → Flow → Data → BI (desktop, motion allowed) */
   var sig=document.getElementById('signal'),cards=sig.querySelectorAll('.flow article'),bars=sig.querySelectorAll('.flow .bar');
@@ -153,12 +175,21 @@
     }
   }
   function mode(){
-    var on=wide.matches&&!reduce;
+    sig.classList.remove('scrub');
+    var fits=sig.querySelector('.wrap').offsetHeight<=innerHeight-56;
+    var on=wide.matches&&!reduce&&fits;
     sig.classList.toggle('scrub',on);
     if(!on){cards.forEach(function(c){c.classList.remove('on')});bars.forEach(function(b){b.style.transform=''})}
     scrub();
   }
   addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(scrub)}},{passive:true});
   (wide.addEventListener?wide.addEventListener('change',mode):wide.addListener(mode));
+  var rz=0;addEventListener('resize',function(){cancelAnimationFrame(rz);rz=requestAnimationFrame(mode)});
   mode();
+
+  /* pause the dither loop in hidden tabs and follow live reduced-motion changes */
+  var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)');
+  function pause(){worker.postMessage({reduce:document.hidden||(rm&&rm.matches)})}
+  document.addEventListener('visibilitychange',pause);
+  if(rm&&rm.addEventListener)rm.addEventListener('change',function(){reduce=rm.matches;pause();mode()});
 })();

@@ -38,7 +38,7 @@ html:not([data-lang]) [lang="en"], html[data-lang="es"] [lang="en"]:not(html), h
 .lang{display:flex;border:1px solid var(--line);border-radius:2px;flex:none}
 .lang button{all:unset;cursor:pointer;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.08em;padding:4px 9px;color:var(--dim)}
 .lang button[aria-pressed="true"]{background:var(--bone);color:var(--ink)}
-@media (max-width:760px){.nav nav{display:none}.lang{margin-left:auto}}
+@media (max-width:760px){.nav .wrap{flex-wrap:wrap;height:auto;padding-block:8px;row-gap:2px}.nav nav{order:3;width:100%;margin:0;gap:6px}.nav nav a{padding:10px 6px}.lang{margin-left:auto}}
 
 /* HERO */
 .hero{position:relative;border-bottom:1px solid var(--line);overflow:hidden}
@@ -120,7 +120,7 @@ h2{font-family:var(--f-display);font-weight:300;font-size:clamp(34px,5vw,58px);l
 @media (max-width:480px){.manifest{grid-template-columns:1fr}}
 
 /* Stack */
-.stackgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 300px;gap:32px}
+.stackgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px}
 .stackgrid ol{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
 .stackgrid li{display:grid;grid-template-columns:40px 1fr auto;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);font-family:var(--f-mono);font-size:13.5px}
 .stackgrid li span:first-child{color:var(--dim)}
@@ -172,7 +172,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;
 .shots-head p{margin:0;color:var(--ash);max-width:52ch}
 .shot-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
 .shot{all:unset;box-sizing:border-box;display:block;width:100%;cursor:zoom-in}
-.shot img{display:block;width:100%;height:auto;aspect-ratio:400/859;object-fit:cover;border:1px solid var(--line);filter:grayscale(1) brightness(.5) contrast(1.05);transition:filter .45s var(--ease-out,ease-out),transform .45s var(--ease-out,ease-out),border-color .45s}
+.shot img{display:block;width:100%;height:auto;aspect-ratio:400/859;object-fit:cover;border:1px solid var(--line);filter:grayscale(1) brightness(.5) contrast(1.05);transition:filter 200ms ease,transform 200ms var(--ease-out),border-color 200ms ease}
 .shot:hover img,.shot:focus-visible img{filter:none;border-color:var(--ash);transform:translateY(-4px)}
 .shot:focus-visible{outline:1px solid var(--bone);outline-offset:4px}
 .shot .cap{display:flex;gap:10px;margin-top:10px;font-family:var(--f-mono);font-size:12px;color:var(--ash)}
@@ -198,8 +198,9 @@ html[data-theme="red-august"]{--ink:#120806;--slab:#1c0d09;--line:#3a1a12;--bone
 html[data-theme="teal"]{--ink:#071416;--slab:#0b1d1f;--line:#1c3336;--bone:#d6ebe8;--ash:#86a6a3;--dim:#6f8b89;--seal:#ff4a3d;--wall:var(--w-teal);color-scheme:dark;--seal-text:#ff4a3d}
 html[data-theme="forest"]{--ink:#0b1009;--slab:#121a0f;--line:#26331f;--bone:#e2e8d6;--ash:#9aa58a;--dim:#7c8770;--seal:#a9c26a;--wall:var(--w-forest);color-scheme:dark;--seal-text:#a9c26a}
 html[data-theme="chrome"]{--ink:#07050d;--slab:#110b1f;--line:#2a2040;--bone:#e9e4f5;--ash:#a39bbb;--dim:#817899;--seal:#9d6bff;--wall:var(--w-chrome);color-scheme:dark;--seal-text:#9d6bff}
-.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--ink) 24%,color-mix(in srgb,var(--ink) 55%,transparent) 44%,transparent 62%),linear-gradient(0deg,var(--ink),transparent 22%);pointer-events:none}
-.hero .watermark{z-index:1}.hero .wrap{position:relative;z-index:2}
+.hero{--fade:calc(50vw - min(50vw,590px) + 700px)}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--ink) 0 var(--fade),color-mix(in srgb,var(--ink) 55%,transparent) calc(var(--fade) + 6vw),transparent calc(var(--fade) + 20vw)),linear-gradient(0deg,var(--ink),transparent 22%);pointer-events:none}
+#wallfx{z-index:1}.hero::after{z-index:1}.hero .watermark{z-index:0}.hero .wrap{position:relative;z-index:2}
 .themes{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:14px}
 .theme{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;border:1px solid var(--line);background:var(--ink);transition:border-color 90ms,background-color 90ms}
 .theme:hover{border-color:var(--ash)}
@@ -229,7 +230,7 @@ html[data-theme="deathnote"]{--ink:#060606;--slab:#101010;--line:#272727;--bone:
 html[data-theme="steins"]{--ink:#0b0805;--slab:#16100a;--line:#33261a;--bone:#f3e3cd;--ash:#b39c80;--dim:#8e7c66;--seal:#ff8a2a;color-scheme:dark;--seal-text:#ff8a2a}
 #wallfx{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:right center;image-rendering:pixelated;pointer-events:none}
 .art .ring{position:absolute;inset:4%;border:1px solid color-mix(in srgb,var(--bone) 32%,transparent);border-radius:50%}
-@media (max-width:860px){#wallfx{opacity:.38}.art{aspect-ratio:auto;height:0;margin:0}.art .ring{display:none}.art figcaption{position:static;margin-top:8px}}
+@media (max-width:860px){.hero::after{background:linear-gradient(0deg,var(--ink) 8%,color-mix(in srgb,var(--ink) 72%,transparent))}#wallfx{opacity:.38}.art{aspect-ratio:auto;height:0;margin:0}.art .ring{display:none}.art figcaption{position:static;margin-top:8px}}
 .theme canvas.sw{width:100%;height:auto;image-rendering:pixelated}
 .themes-sub{display:flex;justify-content:space-between;gap:12px;margin:48px 0 16px;padding-top:14px;border-top:1px solid var(--line)}
 
@@ -259,25 +260,25 @@ html[data-theme="mob"]{--ink:#0d0812;--slab:#170f20;--line:#33244a;--bone:#f4ecf
 html[data-theme="ttgl"]{--ink:#0c0706;--slab:#170e0c;--line:#38211c;--bone:#f6e6dc;--ash:#b89c8e;--dim:#90796d;--seal:#ff3d2e;color-scheme:dark;--seal-text:#ff3d2e}
 html[data-theme="codegeass"]{--ink:#0a0610;--slab:#140c1e;--line:#2f2142;--bone:#efe6f6;--ash:#a99bbb;--dim:#877a97;--seal:#c0267a;color-scheme:dark;--seal-text:#c84990}
 /* MOTION — rare, page-level moments only (load + first view of each section). Nav, buttons, copy: instant. */
-:root{--ease-out:cubic-bezier(.22,1,.36,1)}
+:root{--ease-out:cubic-bezier(.23,1,.32,1);--ease-in-out:cubic-bezier(.77,0,.175,1)}
 @media (prefers-reduced-motion:no-preference){
   /* hero: staggered entrance on load */
-  .js .hero [data-in]{opacity:0;transform:translateY(14px);filter:blur(6px);animation:rise .7s var(--ease-out) forwards;animation-delay:calc(var(--i,0) * 70ms + 80ms)}
-  .js .art{opacity:0;animation:fade 1.2s var(--ease-out) .35s forwards}
+  .js .hero [data-in]{opacity:0;transform:translateY(12px);animation:rise .55s var(--ease-out) forwards;animation-delay:calc(var(--i,0) * 50ms + 40ms)}
+  .js .art{opacity:0;animation:fade .6s var(--ease-out) .2s forwards}
   @keyframes rise{to{opacity:1;transform:none;filter:none}}
   @keyframes fade{to{opacity:1}}
   /* sections: reveal once when they first enter the viewport */
-  .js [data-reveal]>:not(dialog){opacity:0;transform:translateY(16px);filter:blur(4px);transition:opacity .6s var(--ease-out),transform .6s var(--ease-out),filter .6s var(--ease-out);transition-delay:calc(var(--i,0) * 60ms)}
-  .js [data-reveal].in>:not(dialog){opacity:1;transform:none;filter:none}
+  .reveal [data-reveal]>:not(dialog){opacity:0;transform:translateY(12px);transition:opacity .5s var(--ease-out),transform .5s var(--ease-out);transition-delay:calc(min(var(--i,0),4) * 60ms)}
+  .reveal [data-reveal].in>:not(dialog){opacity:1;transform:none}
 }
 
 /* SIGNAL as a scroll-scrubbed sequence (scroll drives time, Scroll World style): desktop + motion allowed only */
 .flow .bar{position:absolute;left:0;top:-1px;height:2px;width:100%;background:var(--seal);transform:scaleX(0);transform-origin:left}
 @media (min-width:901px) and (prefers-reduced-motion:no-preference){
-  .js #signal.scrub{height:260vh;border-bottom:1px solid var(--line)}
-  .js #signal.scrub>.wrap{position:sticky;top:56px;min-height:calc(100vh - 56px);display:flex;flex-direction:column;justify-content:center}
+  .js #signal.scrub{height:180vh;border-bottom:1px solid var(--line)}
+  .js #signal.scrub>.wrap{position:sticky;top:56px;min-height:calc(100vh - 56px);display:flex;flex-direction:column;justify-content:flex-start;padding-top:clamp(24px,5vh,56px)}
   .js #signal.scrub .flow article{transition:opacity .35s var(--ease-out)}
-  .js #signal.scrub .flow article:not(.on){opacity:.38}
+  .js #signal.scrub .flow article:not(.on){opacity:.6}
   .js #signal.scrub .flow article.on h3{color:var(--bone)}
 }
 
@@ -291,14 +292,39 @@ a{text-underline-offset:.2em}
 .btn:active,.copy:active,.theme:active,.shot:active,.lang button:active,.v-ctl button:active{transform:scale(.97)}
 
 /* hover lifts only where hover exists; taps must not leave a stuck state */
-@media (hover:none){.shot:hover img{transform:none;filter:grayscale(1) brightness(.5) contrast(1.05)}.proj:hover .arrow{transform:none}}
+@media (hover:none){.shot img,.shot:hover img{transform:none;filter:none}.proj:hover .arrow{transform:none}}
 
 /* touch targets */
-@media (pointer:coarse){.lang button,.v-ctl button,.copy{min-height:44px;min-width:44px;display:inline-grid;place-items:center;box-sizing:border-box}}
+@media (pointer:coarse){.lang button,.v-ctl button,.copy,.btn,.nav nav a{min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box}}
+.nav nav a{flex:none}
 
 /* viewer: occasional, so it earns a short entrance; exit stays instant */
-#viewer[open]{animation:none;transition:opacity 200ms cubic-bezier(.23,1,.32,1),transform 200ms cubic-bezier(.23,1,.32,1)}
+#viewer[open]{animation:none;transition:opacity 200ms cubic-bezier(.23,1,.32,1),transform 200ms var(--ease-out)}
 @starting-style{#viewer[open]{opacity:0;transform:scale(.96)}}
 #viewer[open]::backdrop{transition:opacity 200ms ease-out}
 @starting-style{#viewer[open]::backdrop{opacity:0}}
 @media (prefers-reduced-motion:reduce){.btn:active,.copy:active,.theme:active,.shot:active,.lang button:active,.v-ctl button:active{transform:none}@starting-style{#viewer[open]{transform:none}}}
+
+/* DESIGN PASS (taste · ui-ux-pro-max · break-ui · improve-animations · impeccable) */
+.lang button:focus-visible,.copy:focus-visible,.more-themes>summary:focus-visible{outline:1px solid var(--bone);outline-offset:3px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.email a.mail{text-decoration:none;color:inherit}
+.email a.mail:hover code,.email a.mail:focus-visible code{border-color:var(--bone)}
+.art figcaption .label{background:var(--ink);padding:2px 6px}
+.nav nav a[aria-current]{color:var(--bone)}
+.nav nav a[aria-current]::before{content:"// ";color:var(--seal-text)}
+.more-themes>summary{cursor:pointer;list-style:none;display:flex}
+.more-themes>summary::-webkit-details-marker{display:none}
+.more-themes>summary>span:first-child::after{content:" +";color:var(--seal-text)}
+.more-themes[open]>summary>span:first-child::after{content:" −"}
+@media (max-width:560px){.themes{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.theme .meta{padding:8px 10px}.theme .meta small,.theme .dots{display:none}.theme .meta b.ttl{font-size:15px}}
+@media (max-width:900px){.stackgrid{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.stackgrid{grid-template-columns:1fr}}
+
+/* theme switch: the one deliberate moment, the new palette spreads from the chosen card */
+::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+@media (prefers-reduced-motion:no-preference){
+  ::view-transition-new(root){animation:theme-in 520ms var(--ease-in-out)}
+  @keyframes theme-in{from{clip-path:circle(0 at var(--vt-x,50%) var(--vt-y,50%))}to{clip-path:circle(150vmax at var(--vt-x,50%) var(--vt-y,50%))}}
+}
+@media (prefers-reduced-motion:reduce){::view-transition-new(root){animation:vt-fade 160ms ease}@keyframes vt-fade{from{opacity:0}}}
