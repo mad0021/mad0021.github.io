@@ -58,7 +58,7 @@
     if(!src)return;
     var im=new Image();im.onload=function(){
       var W=size.wallfx[0],H=size.wallfx[1],o=document.createElement('canvas');o.width=W;o.height=H;var g=o.getContext('2d');
-      if(id==='ink'){var h=H*.96,w=h*im.width/im.height;g.drawImage(im,W*.8-w/2,H-h+H*.02,w,h)}
+      if(id==='ink'){var h=H*.86,w=h*im.width/im.height;g.drawImage(im,W*.5-w/2,H-h,w,h)} // centred, HVMANITY-style
       else g.drawImage(im,0,0,W,H);
       var px=g.getImageData(0,0,W,H).data,l=new Float32Array(W*H),a=new Uint8Array(W*H),sc=hex('--seal');
       for(var i=0;i<l.length;i++){
@@ -88,7 +88,7 @@
   var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches,size={},worker=null;
   var cvs=Array.prototype.slice.call(document.querySelectorAll('canvas[data-fig]'));
   if(window.Worker&&HTMLCanvasElement.prototype.transferControlToOffscreen){
-    worker=new Worker('js/dither.worker.js?v=3bab9cc8');
+    worker=new Worker('js/dither.worker.js?v=e157a200');
     var add=cvs.map(function(c,i){c.dataset.fid=i;if(c.id)size[c.id]=[c.width,c.height];if(c.dataset.fig==='mono')size.mono=[c.width,c.height];
       return {id:i,cv:c.transferControlToOffscreen(),ds:Object.assign({},c.dataset)}});
     worker.postMessage({add:add,reduce:reduce},add.map(function(a){return a.cv}));
@@ -111,12 +111,11 @@
     fma:['錬','mincho','renkin','Fullmetal Alchemist'],kimetsu:['炎','mincho','honō','Demon Slayer'],deathnote:['名','mincho','na','Death Note'],steins:['時','tech','toki','Steins;Gate'],
     onepiece:['海','mincho','umi','One Piece'],naruto:['忍','mincho','shinobi','Naruto'],dbz:['気','tech','ki','Dragon Ball Z'],jjk:['呪','tech','noroi','Jujutsu Kaisen'],csm:['鋸','tech','nokogiri','Chainsaw Man'],hxh:['念','tech','nen','Hunter x Hunter'],berserk:['剣','mincho','ken','Berserk'],vinland:['航','mincho','kō','Vinland Saga'],frieren:['旅','mincho','tabi','Frieren'],mob:['超','tech','chō','Mob Psycho 100'],ttgl:['螺','tech','ra','Gurren Lagann'],codegeass:['王','mincho','ō','Code Geass']};
   var NAME_EN={ink:'Ink',spirited:'Spirited Away',mononoke:'Princess Mononoke'};
-  var sealEl=document.querySelector('.seal'),wmEl=document.querySelector('.watermark'),iconEl=document.querySelector('link[rel="icon"]');
+  var sealEl=document.querySelector('.seal'),iconEl=document.querySelector('link[rel="icon"]');
   function applyKit(id){
     var k=KIT[id]||KIT.ink,kanji=k[0]!=='M',en=root.lang==='en',name=(en&&NAME_EN[id])||k[3];
     if(k[1]==='serif')delete root.dataset.font;else root.dataset.font=k[1];
     sealEl.textContent=k[0];sealEl.classList.toggle('k',kanji);
-    wmEl.textContent=k[0];wmEl.classList.toggle('k',kanji);
     document.querySelectorAll('.idx .mk').forEach(function(m){m.textContent=kanji?k[0]:''});
     document.getElementById('kit-cap').textContent=id==='ink'?'fig. 01 — '+(en?'Marcus Aurelius':'Marco Aurelio')+' · CC0':'fig. 01 — '+name+' · '+k[0];
     document.getElementById('wallfx').setAttribute('aria-label',id==='ink'?(en?'Dithered bust of Marcus Aurelius (CC0 photo, Wikimedia Commons)':'Busto de Marco Aurelio tramado (foto CC0, Wikimedia Commons)'):(en?'Dithered figure: ':'Figura tramada: ')+name);
@@ -154,6 +153,12 @@
     var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -12% 0px'});
     groups.forEach(function(g){io.observe(g)});
   }else groups.forEach(function(g){g.classList.add('in')});
+
+  /* embers rising through the light beam (CSS-animated; paused with the motion control) */
+  var emb=document.querySelector('.embers');
+  if(emb&&!reduce)for(var e=0;e<22;e++){var s=document.createElement('i'),rnd=Math.random;
+    s.style.cssText='left:'+(30+rnd()*40)+'%;--s:'+(1.5+rnd()*2.5).toFixed(1)+'px;--d:'+(7+rnd()*9).toFixed(1)+'s;--delay:-'+(rnd()*14).toFixed(1)+'s;--dx:'+((rnd()-.5)*90).toFixed(0)+'px;--o:'+(.4+rnd()*.55).toFixed(2);
+    emb.appendChild(s)}
 
   /* theme wallpaper swatches are offscreen at load: fetch them only when the section is near */
   var thSec=document.getElementById('themes');
@@ -197,7 +202,7 @@
   var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)');
   var motionBtn=document.getElementById('motion'),paused=false;
   try{paused=localStorage.getItem('mad-motion')==='off'}catch(e){}
-  function pause(){worker.postMessage({reduce:document.hidden||(rm&&rm.matches)||paused});motionBtn.setAttribute('aria-pressed',String(paused))}
+  function pause(){worker.postMessage({reduce:document.hidden||(rm&&rm.matches)||paused});motionBtn.setAttribute('aria-pressed',String(paused));root.classList.toggle('still',paused)}
   motionBtn.addEventListener('click',function(){paused=!paused;try{localStorage.setItem('mad-motion',paused?'off':'on')}catch(e){}pause()});
   pause();
   document.addEventListener('visibilitychange',pause);

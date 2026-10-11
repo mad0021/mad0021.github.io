@@ -12,7 +12,8 @@
 
 ## Overview
 
-A single-page "system dossier": an editorial, spec-sheet layout where every illustration is
+A single-page "system dossier" with a monumental hero: a dithered classical bust under a beam of
+warm light, a halo, an orbit line and rising embers, set in Roman capitals. Every illustration is
 rendered live in the browser with **ordered (Bayer 8×8) dithering**. Visitors can switch between
 **31 themes**. Each theme restyles the whole page, not just the colours.
 
@@ -92,6 +93,7 @@ Measured in Chromium (1280×800, Long Tasks API):
 ├── js/dither.worker.js     dither engine: figures, motifs, render loop
 ├── assets/
 │   ├── bust-marcus-aurelius.webp
+│   ├── fonts/              Cinzel + Fraunces (woff2, OFL)
 │   ├── themes/             desktop wallpapers (webp)
 │   ├── etable/             eTable screenshots (webp)
 │   └── og.jpg              social preview
@@ -122,10 +124,11 @@ full page, but the decorative canvases stay empty.
 - **Anime-inspired themes:** fan homages built from palettes and simple procedural shapes. They
   are not affiliated with or endorsed by the rights holders, and no frames, characters or logos
   are used.
-- **Fonts:** Fraunces, Hanken Grotesk, IBM Plex Mono, Shippori Mincho B1 and Chakra Petch, via
-  Google Fonts (SIL Open Font License).
-- **Layout:** inspired by the editorial "system dossier" style of ryoku.dev. No code or assets
-  were taken from it.
+- **Fonts:** Cinzel and Fraunces (self-hosted in `assets/fonts/`), Hanken Grotesk, IBM Plex Mono,
+  Shippori Mincho B1 and Chakra Petch via Google Fonts. All under the SIL Open Font License.
+- **Design references:** the editorial "system dossier" style of ryoku.dev and the monumental
+  hero composition of the HVMANITY design on sceneai.art. No code, images or copy were taken from
+  either.
 
 ## License
 

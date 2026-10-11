@@ -52,7 +52,7 @@
         var nx=x/W-.5,ny=y/H-.5,g=fbm(nx*5+t*.05,ny*5);
         var vein=Math.abs(Math.sin((nx*6+ny*4+g*4)*2.6));
         return clamp((.45+nx*lx*-1.2+ny*ly*-1)*(.55+.45*vein)*m)}},
-    wall:function(t){var id=root.dataset.theme||'ink';if(MOTIFS[id]){var m=MOTIFS[id](t);return function(x,y,W,H){return m(x-Math.round(W*.12),y,W,H)}} // nudge right: the left side belongs to the text
+    wall:function(t){var id=root.dataset.theme||'ink';if(MOTIFS[id]){var m=MOTIFS[id](t);return function(x,y,W,H){return m(x+Math.round(W*.18),y,W,H)}} // motifs are drawn around x≈.68: centre them in the HVMANITY composition
       var L=lum[id];if(!L){loadLum(id);return null}
       return function(x,y,W,H){var i=y*W+x;return L.a[i]?2+L.l[i]:L.l[i]}},
     motif:function(t,ds){return MOTIFS[ds.motif](t)},
