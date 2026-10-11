@@ -317,7 +317,13 @@
         own:c.ds.bone?[rgb(c.ds.bone),rgb(c.ds.seal),rgb(c.ds.alt||c.ds.seal)]:null}});
     if('reduce' in m)reduce=m.reduce;
     if(m.colors){bone=m.colors[0];seal=m.colors[1];alt=m.colors[2];root.dataset.theme=m.theme;for(var k in F)if(!F[k].own&&F[k].drawn||F[k].vis&&!F[k].own)draw(F[k])}
-    if(m.lum){lum[m.lum]={l:m.l,a:m.a};for(var k2 in F)if(F[k2].ds.fig==='wall')draw(F[k2])}
+    if(m.bmp){for(var k2 in F)if(F[k2].ds.fig==='wall'){var f2=F[k2],Wd=f2.W,Hd=f2.H,o=new OffscreenCanvas(Wd,Hd),g=o.getContext('2d',{willReadFrequently:true}),im=m.b;
+      if(m.bmp==='ink'){var hh=Hd*.86,ww=hh*im.width/im.height;g.drawImage(im,Wd*.5-ww/2,Hd-hh,ww,hh)}else g.drawImage(im,0,0,Wd,Hd);
+      var px=g.getImageData(0,0,Wd,Hd).data,l=new Float32Array(Wd*Hd),a=new Uint8Array(Wd*Hd),sc=m.sc;
+      for(var p=0;p<l.length;p++){var R=px[p*4],G=px[p*4+1],Bl=px[p*4+2],al=px[p*4+3]/255,yy=(.3*R+.59*G+.11*Bl)/255*al;
+        l[p]=m.bmp==='ink'?Math.pow(clamp((yy-.06)/.9),1.45)*.92:clamp((yy-.05)/.8);
+        var ch=Math.max(R,G,Bl)-Math.min(R,G,Bl),dc=Math.abs(R-sc[0])+Math.abs(G-sc[1])+Math.abs(Bl-sc[2]);a[p]=m.bmp!=='ink'&&ch>70&&dc<170?1:0}
+      lum[m.bmp]={l:l,a:a};im.close&&im.close();if((root.dataset.theme||'ink')===m.bmp)draw(f2)}}
     if(m.mask){monoMask=m.mask;for(var k3 in F)if(F[k3].ds.fig==='mono')draw(F[k3])}
     if('vis' in m){var f=F[m.vis];f.vis=m.on;if(m.on&&!f.drawn)draw(f)}
     if('hover' in m){var old=F[hover];hover=m.hover;if(old&&old.vis)draw(old)}

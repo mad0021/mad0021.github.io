@@ -93,7 +93,7 @@ Measured in Chromium (1280×800, Long Tasks API):
 ├── js/dither.worker.js     dither engine: figures, motifs, render loop
 ├── assets/
 │   ├── bust-marcus-aurelius.webp
-│   ├── fonts/              Cinzel + Fraunces (woff2, OFL)
+│   ├── fonts/              Cinzel, Fraunces, Hanken Grotesk, IBM Plex Mono (woff2, OFL)
 │   ├── themes/             desktop wallpapers (webp)
 │   ├── etable/             eTable screenshots (webp)
 │   └── og.jpg              social preview
@@ -124,8 +124,8 @@ full page, but the decorative canvases stay empty.
 - **Anime-inspired themes:** fan homages built from palettes and simple procedural shapes. They
   are not affiliated with or endorsed by the rights holders, and no frames, characters or logos
   are used.
-- **Fonts:** Cinzel and Fraunces (self-hosted in `assets/fonts/`), Hanken Grotesk, IBM Plex Mono,
-  Shippori Mincho B1 and Chakra Petch via Google Fonts. All under the SIL Open Font License.
+- **Fonts:** Cinzel, Fraunces, Hanken Grotesk and IBM Plex Mono (self-hosted in `assets/fonts/`);
+  Shippori Mincho B1 and Chakra Petch via Google Fonts, loaded only for themes that use them. All OFL.
 - **Design references:** the editorial "system dossier" style of ryoku.dev and the monumental
   hero composition of the HVMANITY design on sceneai.art. No code, images or copy were taken from
   either.

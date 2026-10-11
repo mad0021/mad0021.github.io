@@ -28,7 +28,7 @@
   var viewer=document.getElementById('viewer'),shots=document.querySelectorAll('.shot'),cur=0;
   function show(i){
     cur=(i+shots.length)%shots.length;var s=shots[cur],img=s.querySelector('img');
-    viewer.querySelector('img').src=img.src;viewer.querySelector('img').alt=img.alt;
+    viewer.querySelector('img').src=img.dataset.full||img.src;viewer.querySelector('img').alt=img.alt;
     document.getElementById('v-n').textContent='S-0'+(cur+1);
     document.getElementById('v-t').innerHTML=s.querySelector('.cap span:last-child').innerHTML;
     document.getElementById('v-d').innerHTML=s.querySelector('.desc').innerHTML;
@@ -43,7 +43,6 @@
 
   /* DITHER ENGINE: every figure is a shade field (0..1) rendered through a Bayer 8x8 ordered dither, bone on ink.
      A figure is fig(t) -> function(x,y,W,H) returning the shade; values >= 2 mean "seal red" with shade v-2. */
-  function clamp(v){return v<0?0:v>1?1:v}
   var bone,seal;
   function hex(v){v=getComputedStyle(document.documentElement).getPropertyValue(v).trim();return [1,3,5].map(function(i){return parseInt(v.substr(i,2),16)})}
   var alt;function readColors(){bone=hex('--bone');seal=hex('--seal');alt=getComputedStyle(document.documentElement).getPropertyValue('--alt').trim()?hex('--alt'):seal}readColors();
@@ -56,26 +55,15 @@
     if(loading[id])return;loading[id]=1;
     var src=id==='ink'?BUST:(getComputedStyle(root).getPropertyValue('--w-'+id).match(/url\(["']?(.*?)["']?\)\s*$/)||[])[1];if(src)src=src.replace(/^\.\.\//,'');
     if(!src)return;
-    var im=new Image();im.onload=function(){
-      var W=size.wallfx[0],H=size.wallfx[1],o=document.createElement('canvas');o.width=W;o.height=H;var g=o.getContext('2d');
-      if(id==='ink'){var h=H*.86,w=h*im.width/im.height;g.drawImage(im,W*.5-w/2,H-h,w,h)} // centred, HVMANITY-style
-      else g.drawImage(im,0,0,W,H);
-      var px=g.getImageData(0,0,W,H).data,l=new Float32Array(W*H),a=new Uint8Array(W*H),sc=hex('--seal');
-      for(var i=0;i<l.length;i++){
-        var R=px[i*4],G=px[i*4+1],Bl=px[i*4+2],al=px[i*4+3]/255,y=(.3*R+.59*G+.11*Bl)/255*al;
-        l[i]=id==='ink'?Math.pow(clamp((y-.06)/.9),1.45)*.92:clamp((y-.05)/.8);
-        var ch=Math.max(R,G,Bl)-Math.min(R,G,Bl),dc=Math.abs(R-sc[0])+Math.abs(G-sc[1])+Math.abs(Bl-sc[2]);
-        a[i]=id!=='ink'&&ch>70&&dc<170?1:0;
-      }
-      if((root.dataset.theme||'ink')===id)worker.postMessage({lum:id,l:l,a:a},[l.buffer,a.buffer]);else loading[id]=0;
+    var im=new Image();im.onload=function(){createImageBitmap(im).then(function(b){worker.postMessage({bmp:id,b:b,sc:hex('--seal')},[b])},function(){loading[id]=0})
     };im.src=src;
   }
 
   /* the M mask comes from the display font itself, once it has loaded */
-  var glyph='M';
+  var glyph='M',maskDone=false;
   function buildMask(){
     if(!size.mono)return;
-    var c={width:size.mono[0],height:size.mono[1]},o=document.createElement('canvas');o.width=c.width;o.height=c.height;var g=o.getContext('2d');
+    var c={width:size.mono[0],height:size.mono[1]},o=document.createElement('canvas');o.width=c.width;o.height=c.height;var g=o.getContext('2d',{willReadFrequently:true});
     g.fillStyle='#fff';g.textAlign='center';
     if(glyph==='M'){g.textBaseline='alphabetic';g.font='300 '+Math.round(c.height*1.15)+'px Fraunces, Georgia, serif';g.fillText('M',c.width/2,c.height*.95)}
     else{g.textBaseline='middle';g.font='600 '+Math.round(c.height*.92)+'px "Shippori Mincho B1","Yu Mincho",serif';g.fillText(glyph,c.width/2,c.height*.54)}
@@ -88,18 +76,18 @@
   var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches,size={},worker=null;
   var cvs=Array.prototype.slice.call(document.querySelectorAll('canvas[data-fig]'));
   if(window.Worker&&HTMLCanvasElement.prototype.transferControlToOffscreen){
-    worker=new Worker('js/dither.worker.js?v=e157a200');
+    worker=new Worker('js/dither.worker.js?v=047e6b80');
     var add=cvs.map(function(c,i){c.dataset.fid=i;if(c.id)size[c.id]=[c.width,c.height];if(c.dataset.fig==='mono')size.mono=[c.width,c.height];
       return {id:i,cv:c.transferControlToOffscreen(),ds:Object.assign({},c.dataset)}});
     worker.postMessage({add:add,reduce:reduce},add.map(function(a){return a.cv}));
     worker.onmessage=function(e){if(e.data.need)loadLum(e.data.need)};
-    var fio=new IntersectionObserver(function(es){es.forEach(function(e){worker.postMessage({vis:+e.target.dataset.fid,on:e.isIntersecting})})},{rootMargin:'100px'});
+    var fio=new IntersectionObserver(function(es){es.forEach(function(e){worker.postMessage({vis:+e.target.dataset.fid,on:e.isIntersecting});
+      if(e.isIntersecting&&!maskDone&&e.target.dataset.fig==='mono'){maskDone=true;(document.fonts?document.fonts.ready:Promise.resolve()).then(buildMask)}})},{rootMargin:'300px'});
     cvs.forEach(function(c){fio.observe(c)});
     document.querySelectorAll('.theme[data-motif]').forEach(function(b){var id=+b.querySelector('canvas').dataset.fid;
       b.addEventListener('pointerenter',function(){worker.postMessage({hover:id})});b.addEventListener('focus',function(){worker.postMessage({hover:id})});
       b.addEventListener('pointerleave',function(){worker.postMessage({hover:-1})});b.addEventListener('blur',function(){worker.postMessage({hover:-1})})});
   }else worker={postMessage:function(){}};
-  if(document.fonts)document.fonts.ready.then(function(){buildMask()});
 
   /* THEMES: swap the palette on <html>, remember it, repaint the dither figures in the new colours */
   var themeBtns=document.querySelectorAll('.theme');
@@ -114,16 +102,17 @@
   var sealEl=document.querySelector('.seal'),iconEl=document.querySelector('link[rel="icon"]');
   function applyKit(id){
     var k=KIT[id]||KIT.ink,kanji=k[0]!=='M',en=root.lang==='en',name=(en&&NAME_EN[id])||k[3];
-    if(k[1]==='serif')delete root.dataset.font;else root.dataset.font=k[1];
+    if(k[1]==='serif')delete root.dataset.font;else{root.dataset.font=k[1];if(!document.getElementById('jp-fonts')){var lk=document.createElement('link');lk.rel='stylesheet';lk.id='jp-fonts';lk.href='https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;600&family=Chakra+Petch:wght@300;400;600&display=swap';document.head.appendChild(lk)}}
     sealEl.textContent=k[0];sealEl.classList.toggle('k',kanji);
     document.querySelectorAll('.idx .mk').forEach(function(m){m.textContent=kanji?k[0]:''});
-    document.getElementById('kit-cap').textContent=id==='ink'?'fig. 01 — '+(en?'Marcus Aurelius':'Marco Aurelio')+' · CC0':'fig. 01 — '+name+' · '+k[0];
+    var cap=document.getElementById('kit-cap');cap.textContent=id==='ink'?'fig. 01 — '+(en?'Marcus Aurelius':'Marco Aurelio')+' · CC0':'fig. 01 — '+name+' · ';
+    if(id!=='ink'){var jp=document.createElement('span');jp.lang='ja';jp.textContent=k[0];cap.appendChild(jp)}
     document.getElementById('wallfx').setAttribute('aria-label',id==='ink'?(en?'Dithered bust of Marcus Aurelius (CC0 photo, Wikimedia Commons)':'Busto de Marco Aurelio tramado (foto CC0, Wikimedia Commons)'):(en?'Dithered figure: ':'Figura tramada: ')+name);
     document.getElementById('kit-foot').textContent=name;
     var cs=getComputedStyle(root),sv=cs.getPropertyValue('--seal').trim(),iv=cs.getPropertyValue('--ink').trim();
     iconEl.href='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="4" fill="'+sv+'"/><text x="16" y="'+(kanji?24:23)+'" font-family="'+(kanji?'Yu Mincho,serif':'Georgia,serif')+'" font-size="'+(kanji?21:20)+'" font-weight="600" text-anchor="middle" fill="'+iv+'">'+k[0]+'</text></svg>');
     document.querySelector('meta[name="theme-color"]').content=iv;
-    glyph=k[0];buildMask();
+    glyph=k[0];if(maskDone)buildMask();
   }
   function setTheme(id){
     if(id==='ink')delete root.dataset.theme;else root.dataset.theme=id;
@@ -133,11 +122,11 @@
     curTheme=id;applyKit(id);
     cancelAnimationFrame(postFrame);postFrame=requestAnimationFrame(function(){readColors();worker.postMessage({colors:[bone,seal,alt],theme:curTheme})});
   }
-  var postFrame=0,more=document.querySelector('.more-themes');
+  var lastWant='ink',postFrame=0,more=document.querySelector('.more-themes');
   themeBtns.forEach(function(b){b.addEventListener('click',function(){
     var u=new URL(location);if(u.searchParams.has('theme')){u.searchParams.delete('theme');history.replaceState(null,'',u)} // a shared link sets the first look, not every later visit
-    var go=function(){setTheme(b.dataset.theme)};
-    if(!document.startViewTransition||b.getAttribute('aria-pressed')==='true')return go();
+    lastWant=b.dataset.theme;var go=function(){setTheme(lastWant)};
+    if(!document.startViewTransition||lastWant===curTheme)return go();
     var r=b.getBoundingClientRect();root.style.setProperty('--vt-x',(r.left+r.width/2)+'px');root.style.setProperty('--vt-y',(r.top+r.height/2)+'px');
     var vt=document.startViewTransition(go);vt.ready.catch(function(){}); // skipped transitions (hidden tab, rapid clicks) still apply the theme
   })});
@@ -157,7 +146,7 @@
   /* embers rising through the light beam (CSS-animated; paused with the motion control) */
   var emb=document.querySelector('.embers');
   if(emb&&!reduce)for(var e=0;e<22;e++){var s=document.createElement('i'),rnd=Math.random;
-    s.style.cssText='left:'+(30+rnd()*40)+'%;--s:'+(1.5+rnd()*2.5).toFixed(1)+'px;--d:'+(7+rnd()*9).toFixed(1)+'s;--delay:-'+(rnd()*14).toFixed(1)+'s;--dx:'+((rnd()-.5)*90).toFixed(0)+'px;--o:'+(.4+rnd()*.55).toFixed(2);
+    s.style.cssText='left:'+(30+rnd()*40)+'%;--s:'+(1.2+rnd()*1.8).toFixed(1)+'px;--d:'+(9+rnd()*8).toFixed(1)+'s;--delay:-'+(rnd()*17).toFixed(1)+'s;--dx:'+((rnd()-.5)*70).toFixed(0)+'px;--o:'+(.3+rnd()*.4).toFixed(2);
     emb.appendChild(s)}
 
   /* theme wallpaper swatches are offscreen at load: fetch them only when the section is near */
@@ -168,7 +157,7 @@
   var navA=document.querySelectorAll('.nav nav a');
   if('IntersectionObserver' in window){
     var navIO=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)navA.forEach(function(a){if(a.hash==='#'+e.target.id)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current')})})},{rootMargin:'-45% 0px -50% 0px'});
-    document.querySelectorAll('main section[id]').forEach(function(s){navIO.observe(s)});
+    document.querySelectorAll('main>section').forEach(function(s){navIO.observe(s)});
   }
 
   /* SIGNAL: scroll position drives the sequence Apps → Flow → Data → BI (desktop, motion allowed) */
@@ -185,10 +174,12 @@
       cards[i].classList.toggle('on',p>i||i===0);
     }
   }
+  var hero=document.querySelector('.hero');
+  function setHalo(){var w=Math.min(hero.clientWidth,1600),h=hero.clientHeight,s=Math.max(w/640,h/360);var y=100-27860*s/h;hero.style.setProperty('--halo-y',y+'%');hero.classList.toggle('no-halo',y<6)} // head top of the bust in canvas units, bottom-anchored cover fit
   function mode(){
+    setHalo();
     sig.classList.remove('scrub');
-    var fits=sig.querySelector('.wrap').offsetHeight<=innerHeight-56;
-    var on=wide.matches&&!reduce&&fits;
+    var on=wide.matches&&!reduce&&sig.querySelector('.wrap').offsetHeight<=innerHeight-56;
     sig.classList.toggle('scrub',on);
     if(!on){cards.forEach(function(c){c.classList.remove('on')});bars.forEach(function(b){b.style.transform=''})}
     scrub();
@@ -196,7 +187,7 @@
   addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(scrub)}},{passive:true});
   (wide.addEventListener?wide.addEventListener('change',mode):wide.addListener(mode));
   var rz=0;addEventListener('resize',function(){cancelAnimationFrame(rz);rz=requestAnimationFrame(mode)});
-  mode();
+  requestAnimationFrame(mode);
 
   /* pause the dither loop in hidden tabs and follow live reduced-motion changes */
   var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)');
