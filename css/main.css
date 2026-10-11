@@ -1,3 +1,4 @@
+@font-face{font-family:"Fraunces";src:url(/assets/fonts/fraunces-latin.woff2) format("woff2");font-weight:300 600;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 /* Layout: dark "system dossier" — single column of indexed sections, spec-sheet rows, one dithered artwork in the hero. Single dark look by design. */
 :root{
   --ink:#0c0c0b;        /* page */
@@ -86,7 +87,7 @@ h2{font-family:var(--f-display);font-weight:300;font-size:clamp(34px,5vw,58px);l
 .flow h3{font-family:var(--f-display);font-weight:400;font-size:26px;margin:28px 0 8px}
 .flow p{margin:0;color:var(--ash);font-size:15px}
 .flow .tool{margin-top:18px;font-family:var(--f-mono);font-size:12px;color:var(--bone)}
-.flow article:not(:last-child)::after{content:"→";position:absolute;right:-9px;top:22px;background:var(--ink);color:var(--dim);font-family:var(--f-mono);font-size:13px;padding:0 2px;z-index:1}
+.flow article:not(:last-child)::after{content:"→"/"";position:absolute;right:-9px;top:22px;background:var(--ink);color:var(--dim);font-family:var(--f-mono);font-size:13px;padding:0 2px;z-index:1}
 @media (max-width:900px){.flow{grid-template-columns:repeat(2,minmax(0,1fr))}.flow article::after{display:none}}
 @media (max-width:520px){.flow{grid-template-columns:1fr}}
 
@@ -312,11 +313,11 @@ a{text-underline-offset:.2em}
 .email a.mail:hover code,.email a.mail:focus-visible code{border-color:var(--bone)}
 .art figcaption .label{background:var(--ink);padding:2px 6px}
 .nav nav a[aria-current]{color:var(--bone)}
-.nav nav a[aria-current]::before{content:"// ";color:var(--seal-text)}
+.nav nav a[aria-current]::before{content:"// "/"";color:var(--seal-text)}
 .more-themes>summary{cursor:pointer;list-style:none;display:flex}
 .more-themes>summary::-webkit-details-marker{display:none}
-.more-themes>summary>span:first-child::after{content:" +";color:var(--seal-text)}
-.more-themes[open]>summary>span:first-child::after{content:" −"}
+.more-themes>summary>span:first-child::after{content:" +"/"";color:var(--seal-text)}
+.more-themes[open]>summary>span:first-child::after{content:" −"/""}
 @media (max-width:560px){.themes{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.theme .meta{padding:8px 10px}.theme .meta small,.theme .dots{display:none}.theme .meta b.ttl{font-size:15px}}
 @media (max-width:900px){.stackgrid{grid-template-columns:1fr 1fr}}
 @media (max-width:560px){.stackgrid{grid-template-columns:1fr}}
@@ -328,3 +329,19 @@ a{text-underline-offset:.2em}
   @keyframes theme-in{from{clip-path:circle(0 at var(--vt-x,50%) var(--vt-y,50%))}to{clip-path:circle(150vmax at var(--vt-x,50%) var(--vt-y,50%))}}
 }
 @media (prefers-reduced-motion:reduce){::view-transition-new(root){animation:vt-fade 160ms ease}@keyframes vt-fade{from{opacity:0}}}
+
+/* ROUND 2 — web-perf · seo-audit · web-design-guidelines */
+html{scroll-padding-top:72px;-webkit-tap-highlight-color:transparent}
+@media (max-width:760px){html{scroll-padding-top:112px}}
+button,a,.theme,.shot{touch-action:manipulation}
+.wrap{padding-inline:max(var(--gutter),env(safe-area-inset-left)) max(var(--gutter),env(safe-area-inset-right))}
+.nav{top:0;padding-top:env(safe-area-inset-top,0px)}
+#viewer{overscroll-behavior:contain}
+.js #themes:not(.near) .sw{background-image:none!important}
+.art figcaption{align-items:center}
+.motion{all:unset;cursor:pointer;color:var(--dim);border:1px solid var(--line);padding:3px 8px;font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;flex:none}
+.art figcaption{flex-wrap:wrap;gap:8px 12px}
+.motion:hover,.motion:focus-visible{color:var(--bone);border-color:var(--bone)}
+.motion:focus-visible{outline:1px solid var(--bone);outline-offset:2px}
+.motion[aria-pressed="true"]{color:var(--ink);background:var(--bone);border-color:var(--bone)}
+@media (pointer:coarse){.motion{min-height:44px;display:inline-flex;align-items:center;box-sizing:border-box}}

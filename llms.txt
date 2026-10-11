@@ -1,0 +1,23 @@
+# Mamadou Diallo Ndoye
+
+> Power Platform & data developer (Power Apps, Power Automate, Power BI, Data Factory). Also builds eTable, an Android app in Kotlin and Supabase. Handle: @mad0021. The site is bilingual (ES/EN) on one URL; add ?lang=en for English.
+
+## What I do
+- Apps: Power Apps (canvas and model-driven) on Dataverse, replacing shared spreadsheets.
+- Flow: Power Automate cloud flows and approvals for repetitive work.
+- Data: Data Factory pipelines and SQL that move data between systems.
+- BI: Power BI dashboards with DAX and semantic models.
+
+## Projects
+- [eTable](https://github.com/mad0021/etable-supabase): restaurant floor management for Android tablets. Kotlin, Jetpack Compose, Supabase.
+
+## Stack
+Power Apps, Power Automate, Power BI, Data Factory, Dataverse, SQL, Kotlin, TypeScript, React, Azure.
+
+## Languages
+Catalan and Spanish (native), English (C1).
+
+## Links
+- [Portfolio](https://mad0021.github.io/)
+- [GitHub](https://github.com/mad0021)
+- [LinkedIn](https://www.linkedin.com/in/madev021/)

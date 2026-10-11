@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mad0021.github.io/sitemap.xml
