@@ -335,7 +335,7 @@ html[data-font] .corner{font-family:var(--f-mono);font-size:11.5px}
 .corner u{text-decoration-thickness:1px;text-underline-offset:.45em}
 .corner.tl{grid-area:1/1}
 .corner.tr{grid-area:1/2;justify-self:end;text-align:right}
-.hero h1{grid-column:1/-1;grid-row:2;font-family:var(--f-hero);font-weight:500;font-variation-settings:normal;font-size:clamp(52px,12vw,176px);letter-spacing:.06em;line-height:.92;margin:clamp(14px,4vh,40px) 0 0;color:var(--bone);text-shadow:0 0 42px color-mix(in srgb,var(--ink) 85%,transparent),0 0 2px color-mix(in srgb,var(--ink) 60%,transparent)}
+.hero h1{grid-column:1/-1;grid-row:2;font-family:var(--f-hero);font-weight:500;font-variation-settings:normal;font-size:clamp(64px,15vw,216px);letter-spacing:.08em;line-height:.92;margin:clamp(14px,4vh,40px) 0 0;color:var(--bone);text-shadow:0 0 42px color-mix(in srgb,var(--ink) 85%,transparent),0 0 2px color-mix(in srgb,var(--ink) 60%,transparent)}
 html[data-font] .hero h1{font-weight:400;letter-spacing:.02em}
 .hv-line{grid-column:1/-1;grid-row:3;justify-self:end;display:flex;align-items:center;gap:18px;margin:6px 0 0;text-shadow:0 0 18px var(--ink),0 0 4px var(--ink);font-family:var(--f-hero);font-size:clamp(15px,2vw,26px);letter-spacing:.24em;text-transform:uppercase;color:var(--bone)}
 .hv-line .rule{width:clamp(80px,22vw,380px);height:1px;background:color-mix(in srgb,var(--bone) 40%,transparent)}
